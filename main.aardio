@@ -1,0 +1,52 @@
+import win.ui;
+/*DSG{{*/
+mainForm = win.form(text="aardio工程2";right=1209;bottom=556)
+mainForm.add(
+button={cls="button";text="start";left=16;top=519;right=127;bottom=545;db=1;dl=1;z=2};
+button2={cls="button";text="flip";left=142;top=519;right=254;bottom=545;db=1;dl=1;z=3};
+button3={cls="button";text="stop";left=265;top=519;right=381;bottom=545;db=1;dl=1;z=4};
+button4={cls="button";text="start";left=833;top=518;right=944;bottom=544;db=1;dr=1;z=6};
+button5={cls="button";text="flip";left=959;top=518;right=1071;bottom=544;db=1;dr=1;z=7};
+button6={cls="button";text="stop";left=1082;top=518;right=1198;bottom=544;db=1;dr=1;z=8};
+custom={cls="custom";text="自定义控件";left=0;top=0;right=601;bottom=496;bgcolor=12639424;db=1;dl=1;dr=0.5;dt=1;z=1};
+custom2={cls="custom";text="自定义控件";left=609;top=0;right=1210;bottom=496;bgcolor=12639424;db=1;dl=0.5;dr=1;dt=1;z=5}
+)
+/*}}*/
+
+import AForgeVideo;
+var video = AForgeVideo(mainForm.custom);
+
+mainForm.button.oncommand = function(id,event){
+	//默认开启序号1摄像头,分辨率为序号1的分辨率和帧率
+	video.start();
+}
+
+mainForm.button2.oncommand = function(id,event){
+	//摄像头1镜像
+	video.flipLoop();
+}
+
+mainForm.button3.oncommand = function(id,event){
+	//摄像头1停止
+	video.stop();
+}
+
+//定义2号摄像头
+var video2 = AForgeVideo(mainForm.custom2);
+mainForm.button4.oncommand = function(id,event){
+	//开启序号2摄像头,分辨率为序号1的分辨率和帧率
+	video2.start(2);
+}
+
+mainForm.button5.oncommand = function(id,event){
+	//摄像头2镜像
+	video2.flipLoop();
+}
+
+mainForm.button6.oncommand = function(id,event){
+	//摄像头2停止
+	video2.stop();
+}
+
+mainForm.show();
+return win.loopMessage();

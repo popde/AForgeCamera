@@ -1,0 +1,144 @@
+﻿//AForge摄像头库
+import dotNet
+import System.Drawing;
+import System.Windows.Forms;
+
+class AForgeVideo{
+	ctor( winform ){
+		this.pictureBox = ..System.Windows.Forms.CreateEmbed("PictureBox",winform); 
+		this.pictureBox.BackColor = ..System.Drawing.Color.Black;
+		this.pictureBox.SizeMode = ..System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+		this.carema = ..dotNet.load("\res\AForge.dll");
+		this.AForgeCamera = this.carema.import("AForge.Video");
+		this.flip = 0;
+		this.videoDevice = null;
+		..table.gc(this,"stop");
+	};
+	
+	getNameList = function(){
+		var videoDevices = this.AForgeCamera.DirectShow.FilterInfoCollection(this.AForgeCamera.DirectShow.FilterCategory.VideoInputDevice);
+		var retTab = {};
+		if(videoDevices.Count>0){
+			for(i=0;videoDevices.Count-1;1){
+				//压入摄像头设备号名称列表	
+				..table.push(retTab , videoDevices.Item[i].MonikerString);
+			}
+			return retTab; 
+		}
+		return null;
+	}
+	
+	getVideoCapabilitiesList = function(deviceName){
+		if(deviceName!=null){
+			var videoDevice = this.AForgeCamera.DirectShow.VideoCaptureDevice(deviceName);
+			var videoCapabilitiesEx = videoDevice.VideoCapabilities;
+			var retTab = {};
+			if(videoCapabilitiesEx.LongLength>0){
+				for(i=0;videoCapabilitiesEx.LongLength-1;1){
+					..table.push(retTab,{
+						["Width"] = videoCapabilitiesEx.Item[i].FrameSize.Width,
+						["Height"] = videoCapabilitiesEx.Item[i].FrameSize.Height,
+						["FrameRate"] = videoCapabilitiesEx.Item[i].FrameRate,
+					});
+				}
+				return retTab;
+			}
+			return null; 
+		}
+		return null;
+	}
+	
+	start = function(DeviceIndex=1,index=1){
+		if(this.videoDevice){
+			this.videoDevice.Stop();
+		}
+		
+		var namelist = this.getNameList();
+		if(DeviceIndex <= #namelist){
+			name = namelist[DeviceIndex];
+		}else {
+			//超出摄像头数量,不开启
+			return false;
+		}	
+		//设定帧率和分辨率
+		var VideoCapabilities = this.getVideoCapabilitiesList(name);
+		this.videoDevice = this.AForgeCamera.DirectShow.VideoCaptureDevice(name);
+		
+		if(VideoCapabilities!=null){
+			if(index>#VideoCapabilities){
+				index = 1;
+			}
+			this.videoDevice.DesiredFrameRate = VideoCapabilities[index].FrameRate;
+			this.videoDevice.DesiredFrameSize = ..System.Drawing.Size(VideoCapabilities[index].Width,VideoCapabilities[index].Height);
+			this.videoDevice.DesiredSnapshotSize = ..System.Drawing.Size(VideoCapabilities[index].Width,VideoCapabilities[index].Height);
+		}
+		
+		this.videoDevice.NewFrame = function(sender, NewFrameEventArgs){
+			var temp = NewFrameEventArgs.Frame.Clone();
+    		select(this.flip) {
+        		case 0 {
+             		
+        		}
+        		case 1 {
+            		temp.RotateFlip(..System.Drawing.RotateFlipType.RotateNoneFlipX);
+        		}
+        		case 2 {
+            		temp.RotateFlip(..System.Drawing.RotateFlipType.RotateNoneFlipXY);
+        		}
+        		case 3 {
+            		temp.RotateFlip(..System.Drawing.RotateFlipType.RotateNoneFlipY);
+        		}
+        		else {
+        		}
+    		}
+     		
+    		if (this.pictureBox.Image != null)
+    		{
+        		this.pictureBox.Image.Dispose();
+    		}
+    		this.pictureBox.Image = temp;
+		}
+		this.videoDevice.Start();
+		return true;
+	}
+	
+	stop = function(){
+		if(this.videoDevice){
+			this.videoDevice.Stop();
+			this.videoDevice = null;
+		}
+	}
+	
+	flipLoop = function(){
+		select(this.flip) {
+        	case 0 {
+            	this.flip=1;
+        	}
+        	case 1 {
+            	this.flip=2;
+        	}
+        	case 2 {
+            	this.flip=3;
+        	}
+        	case 3 {
+            	this.flip=0;
+        	}
+        	else {
+        	}
+    	}
+	}
+}
+
+/**intellisense()
+AForgeVideo = AForge摄像头库
+AForgeVideo(.(winform) = 创建 摄像头 界面
+AForgeVideo() = !AVideo.
+end intellisense**/
+
+/**intellisense(!AVideo)
+getNameList() = 获取摄像头设备硬件DeviceName名称列表
+getVideoCapabilitiesList(.(DeviceName) = 获取指定设备的 分辨率和帧率 列表，如果不存在那么返回 null
+start(.(DeviceIndex,CapabilitiesIndex) = 开启摄像头\n DeviceIndex:设备序号 , CapabilitiesIndex:分辨率和帧率表序号
+stop() = 关闭摄像头
+flipLoop() = 循环镜像图像,调用一次改变一次镜像方向
+end intellisense**/
