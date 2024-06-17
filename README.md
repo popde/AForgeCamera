@@ -7,4 +7,4 @@ aardio调用AForge.video.DirectShow免费实现摄像头采集和上下左右镜
 这次我们使用开源免费的AForge.video.DirectShow实现摄像头采集和上下左右镜像功能,
 AForge也是异步使用picturebox来实现,
 所以,我们在aardio里也给c#窗体添加个picturebox , 然后利用异步回调更新图片.
-本文首发:https://www.aardio.com.cn/t/21369 , aardio编程软件官方:https://www.aardio.com
+本文首发:https://chengxu.xyz/t/21369 , aardio编程软件官方:https://www.aardio.com
